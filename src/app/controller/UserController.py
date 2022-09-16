@@ -7,6 +7,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, create_refresh_token
 
 
+def public_endpoint(function):
+    function.is_public = True
+    return function
 
 class UserController: 
     def register(self):
@@ -33,17 +36,23 @@ class UserController:
 
 
         
-        
+    
+    @public_endpoint
     def login(self):
         email = request.json.get('email', '')
         password = request.json.get('password', '')
+        print({
+            "email": email,
+            "password": password
+        })
+        print(getattr(request, 'test', 'sing ade nani'))
 
         user = UserModel.query.filter_by(email=email).first()
         if user: 
             isPassCorrect = check_password_hash(user.password, password)
             if isPassCorrect: 
                 refresh = create_refresh_token(identity=user.id)
-                access = create_access_token(identity=user.id, expires_delta=datetime.timedelta(days=30))
+                access = create_access_token(identity={"id": user.id, "name": user.name}, expires_delta=datetime.timedelta(days=30))
                 return jsonify({
                     'status': 'success',
                     'message': '',

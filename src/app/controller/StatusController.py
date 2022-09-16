@@ -4,6 +4,7 @@ from src.database.models.StatusModel import StatusModel
 
 class StatusController:
     def getStatus(self):
+        print(request.auth)
         statusDatas = StatusModel.query.all()
         for index, statusData in enumerate(statusDatas):
             statusDatas[index] = statusData.as_dict()

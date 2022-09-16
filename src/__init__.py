@@ -1,11 +1,12 @@
 from datetime import datetime
 from enum import unique
 from flask import Flask
-from src.routes.api import app as api
+from src.app.routes.api import app as api
 import os
+from flask import jsonify
 from src.database import db
-from flask_sqlalchemy import SQLAlchemy
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, jwt_required
+from src.app.middleware.RegisterMiddleware import RegisterMiddleware
 
 
 def create_app(test_config=None):
@@ -27,8 +28,12 @@ def create_app(test_config=None):
     db.init_app(app)
 
     JWTManager(app)
+    RegisterMiddleware(app)
 
     app.register_blueprint(api, url_prefix='/api/v1')
+    @app.errorhandler(404)
+    def notFound(e):
+        return jsonify({'message': 'Not found'}), 404
 
     return app
 
